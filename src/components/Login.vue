@@ -16,7 +16,7 @@
         </el-form-item>
         <!-- 按钮 -->
         <el-form-item class="btns">
-          <el-button type="primary">登录</el-button>
+          <el-button type="primary" @click="login">登录</el-button>
           <el-button type="info" @click="resresetLoginForm">重置</el-button>
         </el-form-item>
       </el-form>
@@ -28,38 +28,20 @@ export default {
   data() {
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: 'admin',
+        password: '123456'
       },
       // 表单的验证规则
       loginFormRules: {
         // 验证用户名
         username: [
-          {
-            required: true,
-            message: '请输入用户名',
-            trigger: 'blur'
-          },
-          {
-            min: 3,
-            max: 10,
-            message: '长度在 3 到 10 个字符之间',
-            trigger: 'blur'
-          }
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 3 到 10 个字符之间', trigger: 'blur' }
         ],
         // 验证密码
         password: [
-          {
-            required: true,
-            message: '请输入密码',
-            trigger: 'blur'
-          },
-          {
-            min: 6,
-            max: 15,
-            message: '长度在 6 到 15 个字符之间',
-            trigger: 'blur'
-          }
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, max: 15, message: '长度在 6 到 15 个字符之间', trigger: 'blur' }
         ]
       }
     }
@@ -67,6 +49,11 @@ export default {
   methods: {
     resresetLoginForm() {
       this.$refs.loginFormRef.resetFields()
+    },
+    login() {
+      this.$refs.loginFormRef.validate((valid) => {
+        console.log(valid)
+      })
     }
   }
 }
