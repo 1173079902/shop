@@ -23,6 +23,28 @@
   </div>
 </template>
 <script>
-export default {}
+export default {
+  data() {
+    return {
+      queryInfo: {
+        query: '',
+        pagenum: '',
+        pagesize: ''
+      },
+      userlist: [],
+      total: 0
+    }
+  },
+  methods: {
+    async getUserList() {
+      const { data: res } = await this.$http.get('users', {
+        params: this.queryInfo
+      })
+      if (res.meta.status !== 200) return this.$message.error('获取用户列表失败')
+      this.userlist = res.data.users
+      this.total = res.data.total
+    }
+  }
+}
 </script>
 <style lang=""></style>
