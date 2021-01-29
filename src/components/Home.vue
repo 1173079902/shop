@@ -1,7 +1,17 @@
 <template>
-  <div>home 组件</div>
+  <el-button type="info" @click="logout">退出</el-button>
 </template>
 <script>
-export default {}
+export default {
+  data() {
+    return {}
+  },
+  methods: {
+    logout() {
+      window.sessionStorage.clear()
+      this.$router.push('/login')
+    }
+  }
+}
 </script>
 <style lang=""></style>
