@@ -25,6 +25,7 @@
 </template>
 <script>
 export default {
+  name: 'Rights',
   data() {
     return {
       //权限列表
