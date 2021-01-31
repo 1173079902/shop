@@ -27,14 +27,14 @@
               <!-- 渲染二级和三级权限 -->
               <el-col :span="19">
                 <!-- 渲染二级权限 -->
-                <el-row :class="[i2 === 0 ? '' : 'bdtop']" v-for="(item2, i2) in item1.children" :key="item2.id">
+                <el-row :class="[i2 === 0 ? '' : 'bdtop', 'vcenter']" v-for="(item2, i2) in item1.children" :key="item2.id">
                   <el-col :span="6">
                     <el-tag type="success">{{ item1.authName }}</el-tag>
                     <i class="el-icon-caret-right"></i>
                   </el-col>
                   <el-col :span="18">
                     <!-- 渲染三级权限 -->
-                    <el-tag type="warning" v-for="item3 in item2.children" :key="item3.id">{{ item3.authName }}</el-tag>
+                    <el-tag closable @close="removeRightById()" type="warning" v-for="item3 in item2.children" :key="item3.id">{{ item3.authName }}</el-tag>
                   </el-col>
                 </el-row>
               </el-col>
@@ -194,6 +194,19 @@ export default {
       }
       this.$message.success('删除角色成功')
       this.getRolesList()
+    },
+    // 根据 ID 删除对应的权限
+    async removeRightById() {
+      // 弹框提示是否删除
+      const confirmResult = await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch((err) => err)
+      if (confirmResult !== 'confirm') {
+        return this.$message.info('取消了删除')
+      }
+      // 确认了删除
     }
   }
 }
