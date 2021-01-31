@@ -85,7 +85,7 @@
       </span>
     </el-dialog>
     <!-- 分配权限对话框 -->
-    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="50%">
+    <el-dialog title="分配权限" :visible.sync="setRightDialogVisible" width="50%" @close="setRightDialogClosed">
       <!-- 树形控件 -->
       <el-tree :data="rightsList" :props="treeProps" show-checkbox node-key="id" default-expand-all :default-checked-keys="defKeys"></el-tree>
       <span slot="footer" class="dialog-footer">
@@ -249,6 +249,10 @@ export default {
         return arr.push(node.id)
       }
       node.children.forEach((item) => this.getLeafKeys(item, arr))
+    },
+    // 监听分配权限对话框的关闭事件
+    setRightDialogClosed() {
+      this.defKeys = []
     }
   }
 }
