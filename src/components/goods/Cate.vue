@@ -10,7 +10,7 @@
     <el-card>
       <el-row>
         <el-col>
-          <el-button type="primary">添加分类</el-button>
+          <el-button type="primary" @click="showAddCateDialog">添加分类</el-button>
         </el-col>
       </el-row>
       <!-- 表格区域 -->
@@ -35,6 +35,20 @@
       <!-- 分页区域 -->
       <!-- 分页区域 -->
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum" :page-sizes="[3, 5, 10, 15]" :page-size="queryInfo.pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total"></el-pagination>
+      <!-- 添加分类的对话框 -->
+      <el-dialog title="添加分类" :visible.sync="addCateDialogVisible" width="50%">
+        <!-- 添加分类表单 -->
+        <el-form :model="addCateForm" :rules="addCateFormRules" ref="addCateFormRef" label-width="100px">
+          <el-form-item label="分类名称：" prop="cat_name">
+            <el-input v-model="addCateForm.cat_name"></el-input>
+          </el-form-item>
+          <el-form-item label="父级分类："> </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="addCateDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addCateDialogVisible = false">确 定</el-button>
+        </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -74,7 +88,21 @@ export default {
           type: 'template',
           template: 'opt'
         }
-      ]
+      ],
+      // 控制添加分类对话框的显示与隐藏
+      addCateDialogVisible: false,
+      // 添加分类的表单数据对象
+      addCateForm: {
+        // 分类名称
+        cat_name: '',
+        // 父级分类的 ID
+        cat_pid: 0,
+        // 分类的等级，默认要添加的是 1 级分类
+        cat_level: 0
+      },
+      addCateFormRules: {
+        cat_name: [{ required: true, message: '请输入分类名称', trigger: 'blur' }]
+      }
     }
   },
   created() {
@@ -93,7 +121,6 @@ export default {
       this.catelist = res.data.result
       // 为总数据条数赋值
       this.total = res.data.total
-      console.log(this.catelist)
     },
     // 监听 pagesize 变化
     handleSizeChange(newSize) {
@@ -104,6 +131,9 @@ export default {
     handleCurrentChange(newPage) {
       this.queryInfo.pagenum = newPage
       this.getCateList()
+    },
+    showAddCateDialog() {
+      this.addCateDialogVisible = true
     }
   }
 }
@@ -111,6 +141,9 @@ export default {
 
 <style lang="less" scoped>
 .treeTable {
+  margin-top: 15px;
+}
+.zk-table {
   margin-top: 15px;
 }
 </style>
