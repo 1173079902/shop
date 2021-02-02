@@ -42,7 +42,12 @@
           <el-form-item label="分类名称：" prop="cat_name">
             <el-input v-model="addCateForm.cat_name"></el-input>
           </el-form-item>
-          <el-form-item label="父级分类："> </el-form-item>
+          <el-form-item label="父级分类：">
+            <!-- options: 指定数据源 -->
+            <!-- props: 用来指定配置对象 -->
+            <!-- change-on-select: 允许选择一级分类 -->
+            <el-cascader :options="parentCateList" :props="cascaderProps" v-model="selectedKeys" @change="parentCateChanged" clearable></el-cascader>
+          </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="addCateDialogVisible = false">取 消</el-button>
@@ -104,7 +109,17 @@ export default {
         cat_name: [{ required: true, message: '请输入分类名称', trigger: 'blur' }]
       },
       // 父级分类列表
-      parentCateList: []
+      parentCateList: [],
+      // 指定级联选择器的配置对象
+      cascaderProps: {
+        value: 'cat_id',
+        label: 'cat_name',
+        children: 'children',
+        expandTrigger: 'hover',
+        checkStrictly: true
+      },
+      // 选中的父级分类的 ID 数组
+      selectedKeys: []
     }
   },
   created() {
@@ -138,6 +153,7 @@ export default {
       this.getParentCateList()
       this.addCateDialogVisible = true
     },
+    // 获取父级分类的列表
     async getParentCateList() {
       const { data: res } = await this.$http.get('categories', {
         params: {
@@ -149,6 +165,33 @@ export default {
       }
       // 存一下
       this.parentCateList = res.data
+    },
+    // 选择项发生变化会触发的函数
+    parentCateChanged() {
+      // 如果 selectedKeys 数组的 length 大于 0，证明选中了父级分类
+      if (this.selectedKeys.length > 0) {
+        // 父级分类的 ID
+        this.addCateForm.cat_pid = this.selectedKeys[this.selectedKeys.length - 1]
+        // 为当前分类的等级赋值
+        this.addCateForm.cat_level = this.selectedKeys.length
+      } else {
+        this.addCateForm.cat_pid = 0
+        this.addCateForm.cat_level = 0
+      }
+    },
+    // 点击按钮添加新的分类
+    addCate() {
+      console.log(this.addCateForm)
+      // this.addCateDialogVisible = false
+    },
+    // 监听对话框的关闭事件，重置表单数据
+    addCateDialogClosed() {
+      this.$refs.addCateFormRef.resetFields()
+      // 选择到的父分类 ID
+      this.selectedKeys = []
+      // 准备提交到后台的分类等级和分类 ID
+      this.addCateForm.cat_level = 0
+      this.addCateForm.cat_pid = 0
     }
   }
 }
