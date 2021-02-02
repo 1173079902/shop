@@ -36,7 +36,7 @@
       <!-- 分页区域 -->
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum" :page-sizes="[3, 5, 10, 15]" :page-size="queryInfo.pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total"></el-pagination>
       <!-- 添加分类的对话框 -->
-      <el-dialog title="添加分类" :visible.sync="addCateDialogVisible" width="50%">
+      <el-dialog title="添加分类" :visible.sync="addCateDialogVisible" width="50%" @close="addCateDialogClosed">
         <!-- 添加分类表单 -->
         <el-form :model="addCateForm" :rules="addCateFormRules" ref="addCateFormRef" label-width="100px">
           <el-form-item label="分类名称：" prop="cat_name">
@@ -51,7 +51,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="addCateDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addCateDialogVisible = false">确 定</el-button>
+          <el-button type="primary" @click="addCate">确 定</el-button>
         </span>
       </el-dialog>
     </el-card>
@@ -181,8 +181,16 @@ export default {
     },
     // 点击按钮添加新的分类
     addCate() {
-      console.log(this.addCateForm)
-      // this.addCateDialogVisible = false
+      this.$refs.addCateFormRef.validate(async (valid) => {
+        if (!valid) return false
+        const { data: res } = await this.$http.post('categories', this.addCateForm)
+        if (res.meta.status !== 201) {
+          return this.$message.error('添加分类失败')
+        }
+        this.$message.success('添加分类成功')
+        this.getCateList()
+        this.addCateDialogVisible = false
+      })
     },
     // 监听对话框的关闭事件，重置表单数据
     addCateDialogClosed() {
