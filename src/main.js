@@ -27,6 +27,36 @@ Vue.component('tree-table', TreeTable)
 
 Vue.config.productionTip = false
 
+//{{ date | dateFormat('yyyy-mm-dd') }} 不填默认 yyyy-mm-dd hh-mm-ss
+// 过滤器， 进行时间的格式化
+Vue.filter('dateFormat', function(dateStr, pattern = '') {
+  let dt = new Date(dateStr)
+  let y = dt.getFullYear()
+  let m = (dt.getMonth() + 1).toString().padStart(2, '0')
+  let d = dt
+    .getDate()
+    .toString()
+    .padStart(2, '0')
+  pattern.toLowerCase() //传入参数转成小写
+  if (pattern.toLowerCase() === 'yyyy-mm-dd') {
+    return `${y}-${m}-${d}`
+  } else {
+    let hh = dt
+      .getHours()
+      .toString()
+      .padStart(2, '0')
+    let mm = dt
+      .getMinutes()
+      .toString()
+      .padStart(2, '0')
+    let ss = dt
+      .getSeconds()
+      .toString()
+      .padStart(2, '0')
+    return `${y}-${m}-${d} ${hh}:${mm}:${ss}`
+  }
+})
+
 new Vue({
   router,
   render: (h) => h(App)
