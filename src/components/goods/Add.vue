@@ -21,7 +21,7 @@
       </el-steps>
       <!-- tab 栏区域 -->
       <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="100px" label-position="top">
-        <el-tabs :tab-position="tabPosition" v-model="activeIndex">
+        <el-tabs :tab-position="tabPosition" v-model="activeIndex" :before-leave="beforeTabLeave" @tab-click="tabClicked">
           <el-tab-pane label="基本信息" name="0">
             <el-form-item label="商品名称" prop="goods_name">
               <el-input v-model="addForm.goods_name"></el-input>
@@ -39,7 +39,14 @@
               <el-cascader v-model="addForm.goods_cat" :options="catelist" :props="cateProps" @change="handleChange"></el-cascader>
             </el-form-item>
           </el-tab-pane>
-          <el-tab-pane label="商品参数" name="1">商品参数</el-tab-pane>
+          <el-tab-pane label="商品参数" name="1">
+            <el-form-item :label="item.attr_name" v-for="item in manyTableData" :key="item.attr_id">
+              <el-checkbox-group v-model="item.attr_vals">
+                <!-- 这里最好区分出选中的和总的 -->
+                <el-checkbox border :label="cb" v-for="(cb, i) in item.attr_vals" :key="i"></el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+          </el-tab-pane>
           <el-tab-pane label="商品属性" name="2">商品属性</el-tab-pane>
           <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
           <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
@@ -76,14 +83,15 @@ export default {
         value: 'cat_id',
         children: 'children',
         expandTrigger: 'hover'
-      }
+      },
+      manyTableData: []
     }
   },
   created() {
     this.getCateList()
   },
   methods: {
-      // 获取所有商品分类数据
+    // 获取所有商品分类数据
     async getCateList() {
       const { data: res } = await this.$http.get('categories')
       if (res.meta.status !== 200) {
@@ -96,9 +104,49 @@ export default {
       if (this.addForm.goods_cat.length !== 3) {
         this.addForm.goods_cat = []
       }
+    },
+    beforeTabLeave(activeName, oldActiveName) {
+      // console.log('即将离开的标签页', oldActiveName)
+      // console.log('即将进入的标签页', activeName)
+      if (oldActiveName === 0 && this.addForm.goods_cat.length !== 3) {
+        this.$message.error('请选择商品分类')
+        return false
+      }
+    },
+    async tabClicked() {
+      // 当前激活的那个索引
+      // console.log(this.activeIndex)
+      if (this.activeIndex === '1') {
+        // 动态参数
+        const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, {
+          params: {
+            sel: 'many'
+          }
+        })
+        if (res.meta.status !== 200) {
+          return this.$message.error('获取动态参数列表失败')
+        }
+        res.data.forEach((item) => {
+          item.attr_vals = item.attr_vals.length === 0 ? [] : item.attr_vals.split(' ')
+        })
+        this.manyTableData = res.data
+      }
+    }
+  },
+  computed: {
+    cateId() {
+      // 三级分类的 ID
+      if (this.addForm.goods_cat.length === 3) {
+        return this.addForm.goods_cat[2]
+      }
+      return null
     }
   }
 }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.el-checkbox {
+  margin: 0 10px 0 0 !important;
+}
+</style>
