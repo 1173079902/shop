@@ -108,7 +108,7 @@ export default {
     beforeTabLeave(activeName, oldActiveName) {
       // console.log('即将离开的标签页', oldActiveName)
       // console.log('即将进入的标签页', activeName)
-      if (oldActiveName === 0 && this.addForm.goods_cat.length !== 3) {
+      if (oldActiveName === '0' && this.addForm.goods_cat.length !== 3) {
         this.$message.error('请选择商品分类')
         return false
       }
