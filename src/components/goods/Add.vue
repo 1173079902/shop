@@ -52,11 +52,19 @@
               <el-input v-model="item.attr_vals"></el-input>
             </el-form-item>
           </el-tab-pane>
-          <el-tab-pane label="商品图片" name="3">商品图片</el-tab-pane>
+          <el-tab-pane label="商品图片" name="3">
+            <el-upload class="upload-demo" :action="uploadURL" :on-preview="handlePreview" :on-remove="handleRemove" list-type="picture" :headers="headerObj" :on-success="handleSuccess">
+              <el-button size="small" type="primary">点击上传</el-button>
+            </el-upload>
+          </el-tab-pane>
           <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
+    <!-- 图片浏览 -->
+    <el-dialog title="图片浏览" :visible.sync="previewVisible" width="50%">
+      <img :src="previewPath" alt="" class="previewImg" />
+    </el-dialog>
   </div>
 </template>
 
@@ -71,6 +79,7 @@ export default {
         goods_price: 0,
         goods_weight: 0,
         goods_number: 0,
+        pics: [],
         // 商品所属的分类数组
         goods_cat: [{ required: true, message: '请选择商品分类', trigger: 'blur' }]
       },
@@ -91,7 +100,13 @@ export default {
       // 动态参数数据
       manyTableData: [],
       // 静态属性数据
-      onlyTableData: []
+      onlyTableData: [],
+      uploadURL: 'http://127.0.0.1:8888/api/private/v1/upload',
+      headerObj: {
+        Authorization: window.sessionStorage.getItem('token')
+      },
+      previewPath: '',
+      previewVisible: false
     }
   },
   created() {
@@ -148,6 +163,25 @@ export default {
         }
         this.onlyTableData = res.data
       }
+    },
+    //处理图片预览效果
+    handlePreview(file) {
+      this.previewPath = file.response.data.url
+      this.previewVisible = true
+    },
+    //处理移除图片的操作
+    handleRemove(file) {
+      //1.获取将要删除的图片的临时路径
+      const filePath = file.response.data.tmp_path
+      //2.从pics数组中，找到这个图片对应的索引值
+      const i = this.addForm.pics.findIndex((x) => x.pic === filePath)
+      //3.调用数组的splice方法，把图片信息对象，从pics数组中移除
+      this.addForm.pics.splice(i, 1)
+    },
+    // 监听图片上传成功的事件
+    handleSuccess(response) {
+      const picInfo = { pic: response.data.tmp_path }
+      this.addForm.pics.push(picInfo)
     }
   },
   computed: {
@@ -165,5 +199,8 @@ export default {
 <style lang="less" scoped>
 .el-checkbox {
   margin: 0 10px 0 0 !important;
+}
+.previewImg {
+  width: 100%;
 }
 </style>
